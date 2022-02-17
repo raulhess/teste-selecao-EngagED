@@ -2,7 +2,11 @@
   <div>
     <q-card square class="hoverable q-pa-none bordered" v-ripple:primary>
       <div :class="wrapperClasses">
-        <q-img class="col" :src="image" :ratio="1"></q-img>
+        <q-img
+          :class="imageClasses"
+          :src="image"
+          style="min-width: 174px"
+        ></q-img>
         <q-card-section class="col">
           <div class="header-2 q-mb-xs">{{ species }}</div>
           <div class="header-1">{{ name }}</div>
@@ -48,6 +52,12 @@ export default defineComponent({
       return props?.characterData?.species ?? "";
     });
 
+    const imageClasses = computed(() => {
+      let classes = ["col-auto"];
+      classes.push($q.screen.gt.xs ? "bordered-right" : "bordered-bottom");
+      return classes;
+    });
+
     const wrapperClasses = computed(() => {
       let classes = [];
       classes.push($q.screen.gt.xs ? "row" : "column");
@@ -59,6 +69,7 @@ export default defineComponent({
       image,
       name,
       species,
+      imageClasses,
       wrapperClasses,
     };
   },

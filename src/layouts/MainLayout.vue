@@ -3,10 +3,7 @@
     <q-header class="bg-transparent text-primary text-center">
       <q-toolbar style="height: 130px">
         <div class="text-center full-width">
-          <q-img
-            src="logo.png"
-            :style="$q.screen.gt.xs ? 'width: 400px' : 'width: 300px'"
-          ></q-img>
+          <q-img src="logo.png" :style="logoStyle"></q-img>
         </div>
       </q-toolbar>
     </q-header>
@@ -22,11 +19,22 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "MainLayout",
 
-  setup() {},
+  setup() {
+    const $q = useQuasar();
+
+    const logoStyle = computed(() => {
+      return $q.screen.gt.xs ? "width: 400px" : "width: 300px";
+    });
+
+    return {
+      logoStyle,
+    };
+  },
 });
 </script>

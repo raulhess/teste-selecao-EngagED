@@ -1,9 +1,10 @@
 <template>
   <q-page>
-    <div class="q-mx-lg q-mt-md">
+    <div class="q-mx-lg q-pt-md">
       <div class="wrapper">
         <search-vue
           v-model="variables.name"
+          placeholder="Pesquisar"
           @update:model-value="onInput"
         ></search-vue>
       </div>
@@ -17,6 +18,7 @@
             v-for="character of characters"
             :key="character.id"
             :characterData="character"
+            @click="goToCharacter(character)"
           ></character-card-vue>
         </div>
         <div
@@ -26,10 +28,31 @@
           <q-pagination
             v-model="variables.page"
             :max="maxPages"
-            :max-pages="$q.screen.gt.xs ? 10 : 8"
-            color="primary"
+            :max-pages="$q.screen.gt.xs ? 10 : 7"
+            unelevated
+            color="grey-10"
+            active-color="primary"
+            active-text-color="white"
+            direction-links
           >
           </q-pagination>
+        </div>
+        <div
+          v-else-if="variables.name"
+          class="flex flex-center q-mb-md q-pa-sm bg-white bordered"
+        >
+          <div class="text-center text-bold">
+            Não foi possível encontrar nenhum resultado para a busca '{{
+              variables.name
+            }}'.
+            <div>
+              <q-icon
+                name="las la-sad-cry"
+                color="grey-10"
+                size="100px"
+              ></q-icon>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -37,7 +60,8 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch } from "vue";
+import { defineComponent, ref, onMounted, reactive, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useQuery } from "@vue/apollo-composable";
 import { useQuasar } from "quasar";
 import gql from "graphql-tag";
@@ -55,6 +79,7 @@ export default defineComponent({
 
   setup() {
     const $q = useQuasar();
+    const router = useRouter();
 
     const maxPages = ref(0);
     const characters = ref([]);
@@ -63,7 +88,7 @@ export default defineComponent({
       name: "",
       page: 1,
     });
-    const { loading, onResult } = useQuery(
+    const { loading, onResult, restart } = useQuery(
       gql`
         query ($name: String!, $page: Int!) {
           characters(page: $page, filter: { name: $name }) {
@@ -89,14 +114,21 @@ export default defineComponent({
       variables
     );
 
+    onMounted(() => {
+      $q.loading.show();
+      setTimeout(() => {
+        restart();
+        $q.loading.hide();
+      }, 1000);
+    });
+
     onResult(({ data }) => {
+      console.log(data);
       if (loading.value) return;
       if (data) {
-        console.log("data");
         characters.value = data?.characters?.results;
         maxPages.value = data?.characters?.info?.pages;
       } else {
-        console.log("no data");
         characters.value = [];
         maxPages.value = 0;
       }
@@ -114,7 +146,12 @@ export default defineComponent({
       variables.page = 1;
     };
 
+    const goToCharacter = (character) => {
+      router.push(`/character/${character.id ?? -1}`);
+    };
+
     return {
+      goToCharacter,
       onInput,
 
       characters,

@@ -6,6 +6,7 @@
       class="full-width"
       borderless
       :debounce="500"
+      :placeholder="placeholder"
       @update:model-value="$emit('update:model-value', search)"
     >
       <template v-slot:prepend>
@@ -23,6 +24,12 @@ export default defineComponent({
 
   props: {
     modelValue: {
+      type: String,
+      default: "",
+    },
+
+    placeholder: {
+      type: String,
       default: "",
     },
   },
